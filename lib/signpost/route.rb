@@ -67,7 +67,7 @@ class Signpost
     def initialize(matcher, endpoint, params={}, name=nil)
       @matcher  = matcher
       @endpoint = endpoint
-      @params   = params.each_with_object({}) { |t, h| h[t[0].to_s] = t[1] }.freeze
+      @params   = params.each_with_object({}) { |(k, v), h| h[k.to_s] = v }.freeze
       @name     = name ? name.to_sym : nil
 
       freeze

@@ -1,5 +1,7 @@
 require 'signpost'
 
+require 'pry'
+
 Dir[File.join(Dir.pwd, 'spec/shared_examples/**/*.rb')].each { |f| require f }
 
 RSpec.configure do |config|

@@ -20,7 +20,7 @@ describe Signpost::Route do
     subject { instance.params }
 
     it 'should stringify keys' do
-      expect(subject).to match('controller' => 'Users', 'action' => 'show')
+      expect(subject).to include('controller' => 'Users', 'action' => 'show')
     end
   end
 
@@ -56,14 +56,14 @@ describe Signpost::Route do
     context 'when matches' do
       let(:match_data) { instance_double('MatchData', names: ['id'], captures: ['2']) }
 
-      it { expect(subject).to match('controller' => 'Users', 'action' => 'show', 'id' => '2') }
+      it { expect(subject).to include('controller' => 'Users', 'action' => 'show', 'id' => '2') }
     end
 
     context 'when matches and data have info about action' do
       let(:match_data) { instance_double('MatchData', names: %w(action id), captures: %w(watch 2)) }
 
       it 'must merge pattern data' do
-        expect(subject).to match('controller' => 'Users', 'action' => 'watch', 'id' => '2')
+        expect(subject).to include('controller' => 'Users', 'action' => 'watch', 'id' => '2')
       end
     end
 
@@ -71,7 +71,7 @@ describe Signpost::Route do
       let(:match_data) { instance_double('MatchData', names: %w(controller action id), captures: %w(people watch 2)) }
 
       it 'must merge pattern data' do
-        expect(subject).to match('controller' => 'people', 'action' => 'watch', 'id' => '2')
+        expect(subject).to include('controller' => 'people', 'action' => 'watch', 'id' => '2')
       end
     end
 
