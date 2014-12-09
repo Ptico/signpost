@@ -130,16 +130,28 @@ describe Signpost::Endpoint::Resolver do
     end
 
     context 'with namespace' do
-      let(:options) do
-        { namespace: 'Foo' }
-      end
-
       let(:spec) do
         { controller: 'Test', action: 'show' }
       end
 
-      it 'resolves Foo::Test not Test' do
-        expect(subject.endpoint).to equal(Foo::Test)
+      context 'when string' do
+        let(:options) do
+          { namespace: 'Foo' }
+        end
+
+        it 'resolves Foo::Test not Test' do
+          expect(subject.endpoint).to equal(Foo::Test)
+        end
+      end
+
+      context 'when symbol' do
+        let(:options) do
+          { namespace: :foo }
+        end
+
+        it 'resolves Foo::Test not Test' do
+          expect(subject.endpoint).to equal(Foo::Test)
+        end
       end
     end
 
