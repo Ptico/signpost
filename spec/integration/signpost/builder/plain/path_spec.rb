@@ -99,16 +99,97 @@ describe Signpost::Builder::Plain::Path do
 
   describe '#except' do
     before(:each) do
-      instance.except(path)
+      instance.to(spec).except(except)
+    end
+
+    let(:except) { '/users/42' }
+
+    it 'should capture anything except id 42' do
+      expect(route.match('/users/1')).to be_a(Hash)
+      expect(route.match(except)).to     be_nil
     end
   end
 
   describe '#capture' do
+    before(:each) do
+      instance.to(spec).capture({ id: /\d+/ })
+    end
 
+    it 'should capture only digits' do
+      expect(route.match('/users/42')).to   be_a(Hash)
+      expect(route.match('/users/john')).to be_nil
+    end
   end
 
   describe '#params' do
+    before(:each) do
+      instance.to(spec).params(foo: 'bar')
+    end
 
+    it 'should add it to route params' do
+      expect(route.match('/users/42')).to include('foo' => 'bar')
+    end
   end
+
+  describe 'GET' do
+    let(:instance) { Signpost::Builder::Plain::Path::GET.new(pattern, options) }
+
+    it { expect(instance.http_methods).to contain_exactly('GET') }
+  end
+
+  describe 'POST' do
+    let(:instance) { Signpost::Builder::Plain::Path::POST.new(pattern, options) }
+
+    it { expect(instance.http_methods).to contain_exactly('POST') }
+  end
+
+  describe 'PUT' do
+    let(:instance) { Signpost::Builder::Plain::Path::PUT.new(pattern, options) }
+
+    it { expect(instance.http_methods).to contain_exactly('PUT') }
+  end
+
+  describe 'PATCH' do
+    let(:instance) { Signpost::Builder::Plain::Path::PATCH.new(pattern, options) }
+
+    it { expect(instance.http_methods).to contain_exactly('PATCH') }
+  end
+
+  describe 'OPTIONS' do
+    let(:instance) { Signpost::Builder::Plain::Path::OPTIONS.new(pattern, options) }
+
+    it { expect(instance.http_methods).to contain_exactly('OPTIONS') }
+  end
+
+  describe 'DELETE' do
+    let(:instance) { Signpost::Builder::Plain::Path::DELETE.new(pattern, options) }
+
+    it { expect(instance.http_methods).to contain_exactly('DELETE') }
+  end
+
+  describe 'Any' do
+    let(:instance) { Signpost::Builder::Plain::Path::Any.new(pattern, options) }
+
+    context 'by default' do
+      it { expect(instance.http_methods).to match_array(Signpost::SUPPORTED_METHODS) }
+    end
+
+    context 'when specified' do
+      before(:each) do
+        instance.via('GET', 'POST')
+      end
+
+      it { expect(instance.http_methods).to contain_exactly('GET', 'POST') }
+    end
+
+    context 'when specified but not valid' do
+      before(:each) do
+        instance.via('GET', 'post', 'BULLSHIT')
+      end
+
+      it { expect(instance.http_methods).to contain_exactly('GET', 'POST') }
+    end
+  end
+
 
 end

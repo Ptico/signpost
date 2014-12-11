@@ -42,7 +42,7 @@ class Signpost
         end
 
         def build_stack
-          resolved = Endpoint::Resolver.new(@to, @options).resolve
+          resolved = Endpoint::Resolver.new(@to || @block, @options).resolve
 
           @endpoint_params = resolved.params
 
@@ -51,6 +51,26 @@ class Signpost
 
         def build_params
           @endpoint_params.merge(@params)
+        end
+      end
+
+      Signpost::SUPPORTED_METHODS.each do |meth|
+        class_eval <<-BUILD, __FILE__, __LINE__
+      class #{meth} < Path
+        def http_methods
+          Set['#{meth}']
+        end
+      end
+        BUILD
+      end
+
+      class Any < Path
+        def via(*methods)
+          @http_methods = methods.map { |m| m.to_s.upcase }.keep_if { |m| Signpost::SUPPORTED_METHODS.include?(m) }.to_set
+        end
+
+        def http_methods
+          @http_methods || Signpost::SUPPORTED_METHODS
         end
       end
 

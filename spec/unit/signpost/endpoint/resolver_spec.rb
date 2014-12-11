@@ -104,6 +104,15 @@ describe Signpost::Endpoint::Resolver do
           it { expect(subject.params).to   include(controller: Foo, action: Foo::Test) }
         end
 
+        context 'with only action' do
+          let(:spec) do
+            { action: 'test' }
+          end
+
+          it { expect(subject.endpoint).to be_a(Signpost::Endpoint::Dynamic) }
+          it { expect(subject.params).to   include(action: 'test') }
+        end
+
         context 'with unresolvable params' do
           let(:spec) do
             { controller: 'Baz', action: 'show' }
@@ -122,10 +131,17 @@ describe Signpost::Endpoint::Resolver do
         it { expect(subject.params).to   eql({}) }
       end
 
+      context 'when class' do
+        let(:spec) { Test }
+
+        it { expect(subject.endpoint).to equal(spec) }
+        it { expect(subject.params).to   eql({}) }
+      end
+
       context 'when nil' do
         let(:spec) { {} }
 
-        it { expect { subject }.to raise_error(Signpost::Endpoint::UnresolvedError) }
+        it { expect(subject.endpoint).to be_a(Signpost::Endpoint::Dynamic) }
       end
     end
 

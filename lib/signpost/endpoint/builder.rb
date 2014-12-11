@@ -1,5 +1,5 @@
 class Signpost
-  class Endpoint
+  module Endpoint
     class Builder
 
       ##

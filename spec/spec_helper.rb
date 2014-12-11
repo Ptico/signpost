@@ -1,8 +1,11 @@
 require 'signpost'
 
 require 'pry'
+require 'rack/mock'
 
+require File.join(Dir.pwd, 'spec/fixtures/base')
 Dir[File.join(Dir.pwd, 'spec/shared_examples/**/*.rb')].each { |f| require f }
+Dir[File.join(Dir.pwd, 'spec/fixtures/**/*.rb')].each { |f| require f }
 
 RSpec.configure do |config|
 # The settings below are suggested to provide a good initial experience

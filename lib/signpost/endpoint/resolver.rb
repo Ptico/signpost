@@ -1,5 +1,5 @@
 class Signpost
-  class Endpoint
+  module Endpoint
     UnresolvedError = Class.new(StandardError)
 
     class Resolver
@@ -18,7 +18,7 @@ class Signpost
       #
       def resolve
         case spec
-          when Proc
+          when Proc, Class
             endpoint = spec
             params   = {}
           when Hash
@@ -28,7 +28,14 @@ class Signpost
         end
 
         unless endpoint
-          endpoint = params[:action].kind_of?(Class) ? params[:action] : params[:controller]
+          endpoint = if params[:action].kind_of?(Class)
+            params[:action]
+          elsif params[:controller]
+            params[:controller]
+          else
+            Dynamic.new(@options, params)
+          end
+          params[:action].kind_of?(Class) ? params[:action] : params[:controller]
         end
 
         Result.new(endpoint, params)
@@ -64,14 +71,12 @@ class Signpost
       # - :action     {String|Class} action name or constant
       #
       def resolve_hash(controller, action)
-        fail(NameError) if controller.nil? # FIXME workaround for https://github.com/mbj/inflecto/issues/6
-
         if controller.kind_of?(Module)
           if action
             pattern = "#{controller}::#{Inflecto.camelize(action)}"
             action = Inflecto.constantize(pattern) if Object.const_defined?(pattern)
           end
-        else
+        elsif controller
           name = controller_name(controller)
 
           return resolve_hash(Inflecto.constantize(Inflecto.camelize(name)), action)
