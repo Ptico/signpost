@@ -36,11 +36,29 @@ describe Signpost::Builder::Plain::Path do
     end
 
     context 'when hash' do
-      let(:spec) do
-        { controller: 'Users', action: 'index' }
+      context 'with strings' do
+        let(:spec) do
+          { controller: 'Users', action: 'index' }
+        end
+
+        it { expect(route.params).to include('controller' => Users, 'action' => 'index') }
       end
 
-      it { expect(route.params).to include('controller' => Users, 'action' => 'index') }
+      context 'with symbols' do
+        let(:spec) do
+          { controller: :users, action: :index }
+        end
+
+        it { expect(route.params).to include('controller' => Users, 'action' => :index) }
+      end
+
+      context 'with constants' do
+        let(:spec) do
+          { controller: Users, action: 'index' }
+        end
+
+        it { expect(route.params).to include('controller' => Users, 'action' => 'index') }
+      end
     end
 
     context 'when proc' do

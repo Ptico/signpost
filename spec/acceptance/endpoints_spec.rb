@@ -59,6 +59,15 @@ describe 'Endpoint variants' do
           it { expect(result).to eql("dragons|show|#{id}") }
         end
 
+        # put('/dragons/:id').to({ controller: 'Dragons', action: 'create' })
+        context 'when symbols' do
+          let(:spec) do
+            { controller: :dragons, action: :show }
+          end
+
+          it { expect(result).to eql("dragons|show|#{id}") }
+        end
+
         # put('/dragons/:id').to({ controller: Dragons, action: 'create' })
         context 'when constants' do
           let(:spec) do
@@ -102,11 +111,23 @@ describe 'Endpoint variants' do
         end
         let(:pattern) { '/dragons/:id' }
 
+        # put('/dragons/:id').to(->(env) { [200, {}, [env['router.params']['id']] })
+        context 'when lambda' do
+          let(:path) { "/dragons/#{id}" }
+
+          it { expect(result).to eql(id.to_s) }
+        end
+
         # put('/dragons/:id').to do |env|
         #   [200, {}, [env['router.params']['id']]
         # end
         context 'when in #to' do
-          let(:path) { "/dragons/#{id}" }
+          before(:each) do
+            builder.send(method, '/users/:id').to do |env|
+              env['router.params']['id']
+            end
+          end
+          let(:path) { "/users/#{id}" }
 
           it { expect(result).to eql(id.to_s) }
         end

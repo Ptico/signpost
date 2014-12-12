@@ -3,26 +3,86 @@ class Signpost
     class Plain
 
       class Path < self
-        def to(spec)
-          @to = spec
+
+        ##
+        # Route endpoint specification
+        # Might be a string, hash or class wich defines controller and action
+        # names. Rack-compatible block is also acceptable.
+        #
+        # Params:
+        # - spec {String|Hash|Class|Proc} endpoint spec
+        #
+        # Examples:
+        #
+        #     get('/').to('admin/users#index')
+        #     get('/').to('Admin::Users#index')
+        #     get('/').to(controller: 'Admin::Users', action: 'index')
+        #     get('/').to(Admin::Users::List)
+        #     get('/').to do |env|
+        #       [200, {}, ['Hello world!']]
+        #     end
+        #
+        def to(spec=nil, &block)
+          @to = spec || block
           self
         end
 
+        ##
+        # Define named route
+        #
+        # Params:
+        # - name {String|Symbol} route name
+        #
         def as(name)
           @name = name
           self
         end
 
-        def except(condition)
-          @except = condition
+        ##
+        # Do not match given pattern
+        #
+        # Params:
+        # - pattern {String} pattern to ignore
+        #
+        # Examples:
+        #
+        #     delete('/pages/:id').except('/pages/1')
+        #     get('/pages/*slug/edit').except('/pages/system/*/edit')
+        #
+        def except(pattern)
+          @except = pattern
           self
         end
 
+        ##
+        # Define constraints for the route
+        #
+        # Params:
+        # - constraints {Hash|Array|Symbol|RegExp|String}
+        #
+        # Examples:
+        #
+        #     get('/:id').capture(:digit)
+        #     get('/:id').capture(/\d+/)
+        #     get('/:id_or_slug').capture([/\d+/, :word])
+        #     get('/:id.:ext').capture(id: /\d+/, ext: ['png', 'jpg'])
+        #
         def capture(constraints)
           @capture = constraints
           self
         end
 
+        ##
+        # Define default or additional params
+        #
+        # Params:
+        # - params {Hash}
+        #
+        # Examples:
+        #
+        #     get('/pages/:id').params(id: 1)
+        #     match('/:controller/:action').params(from: :dynamic_route)
+        #
         def params(params)
           @params = params
           self
@@ -30,6 +90,9 @@ class Signpost
 
       private
 
+        ##
+        # Private: Build Mustermann matcher from given pattern and options
+        #
         def get_matcher
           matcher_opts = {
             type: @options[:style] || :sinatra
