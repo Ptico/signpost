@@ -22,6 +22,13 @@ class Signpost
     attr_reader :params
 
     ##
+    # Environment constraints
+    #
+    # Returns: {Array}
+    #
+    attr_reader :constraints
+
+    ##
     # Route name
     #
     # Returns: {Symbol}
@@ -41,8 +48,11 @@ class Signpost
     #
     # Returns: {Hash|NilClass}
     #
-    def match(path)
-      return nil unless data = matcher.match(path)
+    def match(path, env)
+      return unless data = matcher.match(path)
+
+      return unless constraints.all? { |c| c.call(env) }
+
       params.merge(Hash[data.names.zip(data.captures)])
     end
 
@@ -64,11 +74,12 @@ class Signpost
 
   private
 
-    def initialize(matcher, endpoint, params={}, name=nil)
-      @matcher  = matcher
-      @endpoint = endpoint
-      @params   = params.each_with_object({}) { |(k, v), h| h[k.to_s] = v }.freeze
-      @name     = name ? name.to_sym : nil
+    def initialize(matcher, endpoint, params={}, constraints=[], name=nil)
+      @matcher     = matcher
+      @endpoint    = endpoint
+      @params      = params.each_with_object({}) { |(k, v), h| h[k.to_s] = v }.freeze
+      @constraints = constraints
+      @name        = name ? name.to_sym : nil
 
       freeze
     end

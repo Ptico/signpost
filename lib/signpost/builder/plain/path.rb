@@ -55,7 +55,7 @@ class Signpost
         end
 
         ##
-        # Define constraints for the route
+        # Define pattern constraints for the route
         #
         # Params:
         # - constraints {Hash|Array|Symbol|RegExp|String}

@@ -6,7 +6,7 @@ class Signpost
 
     def call(env)
       @routes[env[RACK_REQUEST_METHOD]].each do |route|
-        if params = route.match(env[RACK_REQUEST_PATH])
+        if params = route.match(env[RACK_REQUEST_PATH], env)
           if @options[:rack_params]
             env[RACK_QUERY_HASH] = env[RACK_QUERY_HASH] ? env[RACK_QUERY_HASH].merge(params) : params
           end

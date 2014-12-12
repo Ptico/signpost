@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Signpost::Route do
-  let(:instance) { described_class.new(matcher, stack, params, name) }
+  let(:instance) { described_class.new(matcher, stack, params, constraints, name) }
 
   let(:matcher) { Mustermann.new(template) }
   let(:stack) do
@@ -13,12 +13,13 @@ describe Signpost::Route do
       action:     'show'
     }
   end
+  let(:constraints) { [] }
   let(:name) { :root }
 
   let(:template) { '/users/:id' }
 
   describe '#match' do
-    subject { instance.match(path) }
+    subject { instance.match(path, {}) }
 
     context 'when matches' do
       let(:template) { '/users/:id' }
@@ -44,6 +45,33 @@ describe Signpost::Route do
 
       it 'should overwrite params with match data' do
         expect(subject).to match('controller' => 'people', 'action' => 'view', 'id' => '2')
+      end
+    end
+
+    context 'with constraints' do
+      let(:template) { '/users/:id' }
+      let(:path)     { '/users/2' }
+
+      context 'when matches' do
+        let(:constraints) do
+          [
+            ->(env) { true },
+            ->(env) { env }
+          ]
+        end
+
+        it { expect(subject).to be_a(Hash) }
+      end
+
+      context 'when not matches' do
+        let(:constraints) do
+          [
+            ->(env) { true },
+            ->(env) { false }
+          ]
+        end
+
+        it { expect(subject).to be_nil }
       end
     end
 

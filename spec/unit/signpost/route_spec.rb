@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'mustermann/sinatra'
 
 describe Signpost::Route do
-  let(:instance) { described_class.new(matcher, stack, params, name) }
+  let(:instance) { described_class.new(matcher, stack, params, constraints, name) }
 
   let(:matcher) { instance_double('Mustermann::Sinatra') }
   let(:stack) do
@@ -14,6 +14,7 @@ describe Signpost::Route do
       action:     'show'
     }
   end
+  let(:constraints) { [] }
   let(:name) { :root }
 
   describe '#params' do
@@ -45,7 +46,7 @@ describe Signpost::Route do
   end
 
   describe '#match' do
-    subject { instance.match(path) }
+    subject { instance.match(path, {}) }
 
     let(:path) { '/users/2' }
 
@@ -72,6 +73,32 @@ describe Signpost::Route do
 
       it 'must merge pattern data' do
         expect(subject).to include('controller' => 'people', 'action' => 'watch', 'id' => '2')
+      end
+    end
+
+    context 'with constraints' do
+      let(:match_data) { instance_double('MatchData', names: [], captures: []) }
+
+      context 'when matches' do
+        let(:constraints) do
+          [
+            ->(env) { true },
+            ->(env) { env }
+          ]
+        end
+
+        it { expect(subject).to be_a(Hash) }
+      end
+
+      context 'when not matches' do
+        let(:constraints) do
+          [
+            ->(env) { true },
+            ->(env) { false }
+          ]
+        end
+
+        it { expect(subject).to be_nil }
       end
     end
 

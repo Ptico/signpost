@@ -3,7 +3,7 @@ class Signpost
     class Plain
 
       def build
-        Route.new(get_matcher, build_stack, build_params, @name)
+        Route.new(get_matcher, build_stack, build_params, @constraints, @name)
       end
 
     private
@@ -14,6 +14,7 @@ class Signpost
 
         @params = {}
         @endpoint_params = {}
+        @constraints = []
 
         @block = block
       end

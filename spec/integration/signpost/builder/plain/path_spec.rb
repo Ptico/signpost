@@ -123,8 +123,8 @@ describe Signpost::Builder::Plain::Path do
     let(:except) { '/users/42' }
 
     it 'should capture anything except id 42' do
-      expect(route.match('/users/1')).to be_a(Hash)
-      expect(route.match(except)).to     be_nil
+      expect(route.match('/users/1', {})).to be_a(Hash)
+      expect(route.match(except, {})).to     be_nil
     end
   end
 
@@ -134,8 +134,8 @@ describe Signpost::Builder::Plain::Path do
     end
 
     it 'should capture only digits' do
-      expect(route.match('/users/42')).to   be_a(Hash)
-      expect(route.match('/users/john')).to be_nil
+      expect(route.match('/users/42', {})).to   be_a(Hash)
+      expect(route.match('/users/john', {})).to be_nil
     end
   end
 
@@ -145,7 +145,7 @@ describe Signpost::Builder::Plain::Path do
     end
 
     it 'should add it to route params' do
-      expect(route.match('/users/42')).to include('foo' => 'bar')
+      expect(route.match('/users/42', {})).to include('foo' => 'bar')
     end
   end
 
