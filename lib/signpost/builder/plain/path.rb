@@ -73,6 +73,22 @@ class Signpost
         end
 
         ##
+        # Define domain constraints for the route
+        #
+        # Params:
+        # - constraints {Array}
+        #
+        # Examples:
+        #
+        #     get('/stats').constraint(->(env) { env['RACK_ENV'] == 'development' })
+        #
+        def constraint(*constraints)
+          @constraints = constraints
+          self
+        end
+        alias :constraints :constraint
+
+        ##
         # Define default or additional params
         #
         # Params:

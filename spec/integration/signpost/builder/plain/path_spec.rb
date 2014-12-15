@@ -139,6 +139,63 @@ describe Signpost::Builder::Plain::Path do
     end
   end
 
+  describe '#constraints' do
+    context 'one constraint' do
+      before(:each) do
+        instance.to(spec).constraint(->(env) { env['RACK_ENV'] == 'development' })
+      end
+      let(:result) { route.match('/users/42', environment) }
+
+      context 'when matches' do
+        let(:environment) do
+          { 'RACK_ENV' => 'development' }
+        end
+
+        it { expect(result).to be_a(Hash) }
+      end
+
+      context 'when does not matches' do
+        let(:environment) do
+          { 'RACK_ENV' => 'production' }
+        end
+
+        it { expect(result).to be_nil }
+      end
+    end
+
+    context 'many constraints' do
+      before(:each) do
+        instance.to(spec).constraints(
+          ->(env) { env['RACK_ENV'] == 'development' },
+          ->(env) { env['admin'] }
+        )
+      end
+      let(:result) { route.match('/users/42', environment) }
+
+      context 'when matches' do
+        let(:environment) do
+          {
+            'RACK_ENV' => 'development',
+            'admin' => true
+          }
+        end
+
+        it { expect(result).to be_a(Hash) }
+      end
+
+      context 'when does not matches' do
+        let(:environment) do
+          {
+            'RACK_ENV' => 'development',
+            'admin' => false
+          }
+        end
+
+        it { expect(result).to be_nil }
+      end
+    end
+  end
+
   describe '#params' do
     before(:each) do
       instance.to(spec).params(foo: 'bar')
