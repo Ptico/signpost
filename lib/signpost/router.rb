@@ -4,20 +4,31 @@ class Signpost
     RACK_REQUEST_PATH   = 'PATH_INFO'.freeze
     RACK_QUERY_HASH     = 'rack.request.query_hash'.freeze
 
+    attr_reader :routes
+
+    attr_reader :named_routes
+
     def call(env)
       @routes[env[RACK_REQUEST_METHOD]].each do |route|
-        if params = route.match(env[RACK_REQUEST_PATH], env)
-          if @options[:rack_params]
-            env[RACK_QUERY_HASH] = env[RACK_QUERY_HASH] ? env[RACK_QUERY_HASH].merge(params) : params
-          end
+        params = route.match(env[RACK_REQUEST_PATH], env)
 
-          env[@options[:params_key]] = params
+        case params
+          when nil
+            next
+          when Hash
+            if @options[:rack_params]
+              env[RACK_QUERY_HASH] = env[RACK_QUERY_HASH] ? env[RACK_QUERY_HASH].merge(params) : params
+            end
 
-          return route.endpoint.call(env)
+            env[@options[:params_key]] = params
+
+            return route.endpoint.call(env)
+          else
+            return params
         end
       end
 
-      [404, {}, ['']]
+      not_found unless @options[:nested]
     end
 
   private
@@ -28,13 +39,12 @@ class Signpost
       @options = options
 
       builders.each do |builder|
-        route = builder.build
-        @named_routes[route.name] = route if route.name
-
-        builder.http_methods.each do |method|
-          @routes[method] << route
-        end
+        builder.expose(@routes, @named_routes)
       end
+    end
+
+    def not_found
+      [404, {}, ['']]
     end
   end
 end

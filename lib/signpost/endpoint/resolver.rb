@@ -18,13 +18,13 @@ class Signpost
       #
       def resolve
         case spec
-          when Proc, Class
-            endpoint = spec
-            params   = {}
           when Hash
             params = resolve_hash(spec[:controller], spec[:action])
           when String
             params = resolve_string
+          else
+            endpoint = spec
+            params   = {}
         end
 
         unless endpoint
@@ -35,7 +35,6 @@ class Signpost
           else
             Dynamic.new(@options, params)
           end
-          params[:action].kind_of?(Class) ? params[:action] : params[:controller]
         end
 
         Result.new(endpoint, params)

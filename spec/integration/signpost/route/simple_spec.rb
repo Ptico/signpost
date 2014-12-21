@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Signpost::Route do
+describe Signpost::Route::Simple do
   let(:instance) { described_class.new(matcher, stack, params, constraints, name) }
 
   let(:matcher) { Mustermann.new(template) }

@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'mustermann/sinatra'
 
-describe Signpost::Route do
+describe Signpost::Route::Simple do
   let(:instance) { described_class.new(matcher, stack, params, constraints, name) }
 
   let(:matcher) { instance_double('Mustermann::Sinatra') }

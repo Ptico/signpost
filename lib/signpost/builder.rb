@@ -48,7 +48,7 @@ class Signpost
     #     get('/:controller/:action/:id').params(id: 1)
     #
     def get(path, &block)
-      builder = Plain::GET.new(absolute(path), @options, &block)
+      builder = Simple::GET.new(absolute(path), @options, &block)
       @builders << builder
       builder
     end
@@ -93,7 +93,7 @@ class Signpost
     #     post('/:controller/:action/:id').params(id: 1)
     #
     def post(path, &block)
-      builder = Plain::POST.new(absolute(path), @options, &block)
+      builder = Simple::POST.new(absolute(path), @options, &block)
       @builders << builder
       builder
     end
@@ -138,7 +138,7 @@ class Signpost
     #     put('/:controller/:action/:id').params(id: 1)
     #
     def put(path, &block)
-      builder = Plain::PUT.new(absolute(path), @options, &block)
+      builder = Simple::PUT.new(absolute(path), @options, &block)
       @builders << builder
       builder
     end
@@ -180,7 +180,7 @@ class Signpost
     #     patch('/:controller/:action/:id').params(id: 1)
     #
     def patch(path, &block)
-      builder = Plain::PATCH.new(absolute(path), @options, &block)
+      builder = Simple::PATCH.new(absolute(path), @options, &block)
       @builders << builder
       builder
     end
@@ -225,7 +225,7 @@ class Signpost
     #     options('/:controller/:action/:id').params(id: 1)
     #
     def options(path, &block)
-      builder = Plain::OPTIONS.new(absolute(path), @options, &block)
+      builder = Simple::OPTIONS.new(absolute(path), @options, &block)
       @builders << builder
       builder
     end
@@ -267,7 +267,7 @@ class Signpost
     #     delete('/:controller/:action/:id').params(id: 1)
     #
     def delete(path, &block)
-      builder = Plain::DELETE.new(absolute(path), @options, &block)
+      builder = Simple::DELETE.new(absolute(path), @options, &block)
       @builders << builder
       builder
     end
@@ -315,9 +315,61 @@ class Signpost
     #     match('/:controller/:action/:id').params(id: 1)
     #
     def match(path, &block)
-      builder = Plain::Any.new(absolute(path), @options, &block)
+      builder = Simple::Any.new(absolute(path), @options, &block)
       @builders << builder
       builder
+    end
+
+    ##
+    # Define nested routes
+    #
+    # Params:
+    # - path {String} subpath
+    #
+    # Yields: routes dsl
+    #
+    # Example:
+    #
+    #     within('/admin') do
+    #       get('/pages').to('Admin::Pages#index')     # /admin/pages
+    #       put('/users/:id').to('admin/users#create') # /admin/users/2
+    #     end
+    #
+    #     # Nested routes can has their own routes
+    #     within('/admin') do
+    #       get('/').to('admin#index')
+    #
+    #       within('/pages') do
+    #         get('/').to('admin/pages#index')     # /admin/pages
+    #         put('/:id').to('admin/pages#create') # /admin/pages/2
+    #       end
+    #     end
+    #
+    #     # You can also build a middleware stack for subroutes
+    #     within('/admin') do
+    #       use AuthMiddleware
+    #
+    #       get('/').to('admin#index')
+    #     end
+    #
+    def within(path, &block)
+      @builders << Nested.new(absolute(path), @options, &block)
+    end
+
+    ##
+    # Add middleware to routes
+    #
+    # Params:
+    # - middleware {String|Class} middleware or middleware name
+    # - *args                     middleware arguments which will be used for instantiating
+    #
+    # Example:
+    #
+    #     use Rack::Errors
+    #     use AuthMiddleware, 'admin', 'seCrEt'
+    #
+    def use(middleware, *args, &block)
+      @options[:middlewares] << Middleware.new(middleware, args, block)
     end
 
     ##

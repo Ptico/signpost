@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Signpost::Builder::Plain::Path do
+describe Signpost::Builder::Simple::Path do
   let(:instance) { described_class.new(pattern, options) }
 
   let(:pattern) { '/users/:id' }
@@ -207,43 +207,43 @@ describe Signpost::Builder::Plain::Path do
   end
 
   describe 'GET' do
-    let(:instance) { Signpost::Builder::Plain::Path::GET.new(pattern, options) }
+    let(:instance) { Signpost::Builder::Simple::Path::GET.new(pattern, options) }
 
     it { expect(instance.http_methods).to contain_exactly('GET') }
   end
 
   describe 'POST' do
-    let(:instance) { Signpost::Builder::Plain::Path::POST.new(pattern, options) }
+    let(:instance) { Signpost::Builder::Simple::Path::POST.new(pattern, options) }
 
     it { expect(instance.http_methods).to contain_exactly('POST') }
   end
 
   describe 'PUT' do
-    let(:instance) { Signpost::Builder::Plain::Path::PUT.new(pattern, options) }
+    let(:instance) { Signpost::Builder::Simple::Path::PUT.new(pattern, options) }
 
     it { expect(instance.http_methods).to contain_exactly('PUT') }
   end
 
   describe 'PATCH' do
-    let(:instance) { Signpost::Builder::Plain::Path::PATCH.new(pattern, options) }
+    let(:instance) { Signpost::Builder::Simple::Path::PATCH.new(pattern, options) }
 
     it { expect(instance.http_methods).to contain_exactly('PATCH') }
   end
 
   describe 'OPTIONS' do
-    let(:instance) { Signpost::Builder::Plain::Path::OPTIONS.new(pattern, options) }
+    let(:instance) { Signpost::Builder::Simple::Path::OPTIONS.new(pattern, options) }
 
     it { expect(instance.http_methods).to contain_exactly('OPTIONS') }
   end
 
   describe 'DELETE' do
-    let(:instance) { Signpost::Builder::Plain::Path::DELETE.new(pattern, options) }
+    let(:instance) { Signpost::Builder::Simple::Path::DELETE.new(pattern, options) }
 
     it { expect(instance.http_methods).to contain_exactly('DELETE') }
   end
 
   describe 'Any' do
-    let(:instance) { Signpost::Builder::Plain::Path::Any.new(pattern, options) }
+    let(:instance) { Signpost::Builder::Simple::Path::Any.new(pattern, options) }
 
     context 'by default' do
       it { expect(instance.http_methods).to match_array(Signpost::SUPPORTED_METHODS) }

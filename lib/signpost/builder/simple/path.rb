@@ -1,6 +1,6 @@
 class Signpost
   class Builder
-    class Plain
+    class Simple
 
       class Path < self
 
