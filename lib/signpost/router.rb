@@ -31,6 +31,10 @@ class Signpost
       not_found unless @options[:nested]
     end
 
+    def expand(name, data={})
+      @named_routes[name].expand(data)
+    end
+
   private
 
     def initialize(builders, options)

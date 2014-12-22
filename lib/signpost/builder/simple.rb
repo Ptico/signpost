@@ -4,7 +4,7 @@ class Signpost
 
       def expose(routing_table, named_routes)
         route = build
-        named_routes[route.name] = route if route.name
+        named_routes[route.name.to_sym] = route if route.name
 
         http_methods.each do |method|
           routing_table[method] << route

@@ -9,6 +9,22 @@ class Signpost
     SUBPATH_REG = /^\//.freeze
 
     ##
+    # Define root route
+    #
+    # Root route will always be in top of routes
+    # Also this is named route with name `root`
+    #
+    # Example:
+    #
+    #    root.to(HomeController)
+    #
+    def root(&block)
+      builder = Simple::GET.new(absolute('/'), @options, &block)
+      @builders.unshift(builder)
+      builder.as(:root)
+    end
+
+    ##
     # Define route which accepts GET request for the given pattern
     #
     # Params:
