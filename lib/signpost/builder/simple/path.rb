@@ -39,40 +39,6 @@ class Signpost
         end
 
         ##
-        # Do not match given pattern
-        #
-        # Params:
-        # - pattern {String} pattern to ignore
-        #
-        # Examples:
-        #
-        #     delete('/pages/:id').except('/pages/1')
-        #     get('/pages/*slug/edit').except('/pages/system/*/edit')
-        #
-        def except(pattern)
-          @except = pattern
-          self
-        end
-
-        ##
-        # Define pattern constraints for the route
-        #
-        # Params:
-        # - constraints {Hash|Array|Symbol|RegExp|String}
-        #
-        # Examples:
-        #
-        #     get('/:id').capture(:digit)
-        #     get('/:id').capture(/\d+/)
-        #     get('/:id_or_slug').capture([/\d+/, :word])
-        #     get('/:id.:ext').capture(id: /\d+/, ext: ['png', 'jpg'])
-        #
-        def capture(constraints)
-          @capture = constraints
-          self
-        end
-
-        ##
         # Define domain constraints for the route
         #
         # Params:
@@ -106,21 +72,7 @@ class Signpost
 
       private
 
-        ##
-        # Private: Build Mustermann matcher from given pattern and options
-        #
-        def get_matcher
-          matcher_opts = {
-            type: @options[:style] || :sinatra
-          }
-
-          matcher_opts[:capture] = @capture if @capture
-          matcher_opts[:except]  = @except  if @except
-
-          Mustermann.new(@pattern, matcher_opts)
-        end
-
-        def build_stack
+        def build_stack(_router)
           resolved = Endpoint::Resolver.new(@to || @block, @options).resolve
 
           @endpoint_params = resolved.params

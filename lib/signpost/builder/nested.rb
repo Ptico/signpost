@@ -2,14 +2,14 @@ class Signpost
   class Builder
     class Nested
 
-      def expose(routing_table, named_routes)
-        router = @builder.build
-        routes = router.routes
+      def expose(_router, routing_table, named_routes)
+        subrouter = @builder.build
+        subroutes = subrouter.routes
 
-        named_routes.merge!(router.named_routes)
+        named_routes.merge!(subrouter.named_routes)
 
-        routes.keys.reject { |m| routes[m].empty? }.each do |method|
-          routing_table[method] << Route::Nested.new(@subpath, router)
+        subroutes.keys.reject { |m| subroutes[m].empty? }.each do |method|
+          routing_table[method] << Route::Nested.new(@subpath, subrouter)
         end
       end
 

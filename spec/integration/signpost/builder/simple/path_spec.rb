@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Signpost::Builder::Simple::Path do
+describe Signpost::Builder::Simple::GET do
   let(:instance) { described_class.new(pattern, options) }
 
   let(:pattern) { '/users/:id' }
@@ -9,7 +9,14 @@ describe Signpost::Builder::Simple::Path do
   end
   let(:options) { {} }
 
-  let(:route) { instance.build }
+  let(:router) { instance_double('Signpost::Router') }
+  let(:routes) { Signpost::SUPPORTED_METHODS.each_with_object({}) { |m, h| h[m] = [] }.freeze }
+  let(:named_routes) { {} }
+
+  let(:route) do
+    instance.expose(router, routes, named_routes)
+    routes['GET'].last
+  end
 
   before(:each) do
     class Users; end

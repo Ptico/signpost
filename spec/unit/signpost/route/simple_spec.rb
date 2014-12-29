@@ -118,7 +118,7 @@ describe Signpost::Route::Simple do
     let(:path) { '/users/2' }
 
     before(:each) do
-      allow(matcher).to receive(:expand).with(data).and_return(path)
+      allow(matcher).to receive(:expand).with(:append, data).and_return(path)
     end
 
     it { expect(subject).to eql('/users/2') }

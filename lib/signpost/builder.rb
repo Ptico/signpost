@@ -1,10 +1,12 @@
 class Signpost
   class Builder
     DEFAULT_OPTIONS = {
-      middlewares: [],
-      rack_params: true,
       params_key: 'router.params',
-      style: :sinatra
+      default_redirect_status: 303,
+      default_redirect_additional_values: :ignore,
+      style: :sinatra,
+      middlewares: [],
+      rack_params: true
     }.freeze
     SUBPATH_REG = /^\//.freeze
 
@@ -370,6 +372,12 @@ class Signpost
     #
     def within(path, &block)
       @builders << Nested.new(absolute(path), @options, &block)
+    end
+
+    def redirect(path, &block)
+      builder = Simple::Redirect.new(absolute(path), @options, &block)
+      @builders << builder
+      builder
     end
 
     ##

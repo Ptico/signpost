@@ -8,6 +8,8 @@ class Signpost
 
     attr_reader :named_routes
 
+    attr_reader :params_key
+
     def call(env)
       @routes[env[RACK_REQUEST_METHOD]].each do |route|
         params = route.match(env[RACK_REQUEST_PATH], env)
@@ -20,7 +22,7 @@ class Signpost
               env[RACK_QUERY_HASH] = env[RACK_QUERY_HASH] ? env[RACK_QUERY_HASH].merge(params) : params
             end
 
-            env[@options[:params_key]] = params
+            env[params_key] = params
 
             return route.endpoint.call(env)
           else
@@ -42,8 +44,10 @@ class Signpost
       @named_routes = {}
       @options = options
 
+      @params_key = options[:params_key]
+
       builders.each do |builder|
-        builder.expose(@routes, @named_routes)
+        builder.expose(self, @routes, @named_routes)
       end
     end
 

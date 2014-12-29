@@ -18,6 +18,6 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '~> 2.0'
 
-  spec.add_runtime_dependency('mustermann')
+  spec.add_runtime_dependency('mustermann', '~> 0.4')
   spec.add_runtime_dependency('inflecto')
 end

@@ -14,10 +14,12 @@ require 'signpost/router'
 require 'signpost/middleware'
 
 require 'signpost/endpoint/resolver'
-require 'signpost/endpoint/dynamic'
 require 'signpost/endpoint/builder'
+require 'signpost/endpoint/dynamic'
+require 'signpost/endpoint/redirect'
 
 require 'signpost/builder/simple'
 require 'signpost/builder/simple/path'
+require 'signpost/builder/simple/redirect'
 require 'signpost/builder/nested'
 require 'signpost/builder'

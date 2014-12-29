@@ -70,7 +70,7 @@ class Signpost
       # Returns: {String}
       #
       def expand(data={})
-        matcher.expand(data)
+        matcher.expand(:append, data)
       end
 
     private
