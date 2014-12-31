@@ -208,6 +208,15 @@ describe Signpost::Endpoint::Resolver do
           expect(subject.endpoint).to equal(TestsController)
         end
       end
+
+      context 'when controller#action format' do
+        let(:format) { '%{singular_name}Controller' }
+        let(:spec)   { 'test#index' }
+
+        it 'resolves endpoint' do
+          expect(subject.endpoint).to equal(TestController)
+        end
+      end
     end
 
     context 'with namespace and format' do
