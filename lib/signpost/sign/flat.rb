@@ -1,6 +1,7 @@
 class Signpost
-  class Builder
-    class Simple
+  class Sign
+
+    class Flat
 
       ##
       # Do not match given pattern

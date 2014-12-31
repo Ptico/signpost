@@ -21,9 +21,9 @@ class Signpost
     #    root.to(HomeController)
     #
     def root(&block)
-      builder = Simple::GET.new(absolute('/'), @options, &block)
+      builder = Sign::Flat::Path::GET.new(absolute('/'), @options, &block)
       @builders.unshift(builder)
-      builder.as(:root)
+      builder.as(root_name)
     end
 
     ##
@@ -66,7 +66,7 @@ class Signpost
     #     get('/:controller/:action/:id').params(id: 1)
     #
     def get(path, &block)
-      builder = Simple::GET.new(absolute(path), @options, &block)
+      builder = Sign::Flat::Path::GET.new(absolute(path), @options, &block)
       @builders << builder
       builder
     end
@@ -111,7 +111,7 @@ class Signpost
     #     post('/:controller/:action/:id').params(id: 1)
     #
     def post(path, &block)
-      builder = Simple::POST.new(absolute(path), @options, &block)
+      builder = Sign::Flat::Path::POST.new(absolute(path), @options, &block)
       @builders << builder
       builder
     end
@@ -156,7 +156,7 @@ class Signpost
     #     put('/:controller/:action/:id').params(id: 1)
     #
     def put(path, &block)
-      builder = Simple::PUT.new(absolute(path), @options, &block)
+      builder = Sign::Flat::Path::PUT.new(absolute(path), @options, &block)
       @builders << builder
       builder
     end
@@ -198,7 +198,7 @@ class Signpost
     #     patch('/:controller/:action/:id').params(id: 1)
     #
     def patch(path, &block)
-      builder = Simple::PATCH.new(absolute(path), @options, &block)
+      builder = Sign::Flat::Path::PATCH.new(absolute(path), @options, &block)
       @builders << builder
       builder
     end
@@ -243,7 +243,7 @@ class Signpost
     #     options('/:controller/:action/:id').params(id: 1)
     #
     def options(path, &block)
-      builder = Simple::OPTIONS.new(absolute(path), @options, &block)
+      builder = Sign::Flat::Path::OPTIONS.new(absolute(path), @options, &block)
       @builders << builder
       builder
     end
@@ -285,7 +285,7 @@ class Signpost
     #     delete('/:controller/:action/:id').params(id: 1)
     #
     def delete(path, &block)
-      builder = Simple::DELETE.new(absolute(path), @options, &block)
+      builder = Sign::Flat::Path::DELETE.new(absolute(path), @options, &block)
       @builders << builder
       builder
     end
@@ -333,7 +333,7 @@ class Signpost
     #     match('/:controller/:action/:id').params(id: 1)
     #
     def match(path, &block)
-      builder = Simple::Any.new(absolute(path), @options, &block)
+      builder = Sign::Flat::Path::Any.new(absolute(path), @options, &block)
       @builders << builder
       builder
     end
@@ -371,29 +371,13 @@ class Signpost
     #     end
     #
     def within(path, &block)
-      @builders << Nested.new(absolute(path), @options, &block)
+      @builders << Sign::Nested.new(absolute(path), @options, &block)
     end
 
     def redirect(path, &block)
-      builder = Simple::Redirect.new(absolute(path), @options, &block)
+      builder = Sign::Flat::Redirect.new(absolute(path), @options, &block)
       @builders << builder
       builder
-    end
-
-    ##
-    # Add middleware to routes
-    #
-    # Params:
-    # - middleware {String|Class} middleware or middleware name
-    # - *args                     middleware arguments which will be used for instantiating
-    #
-    # Example:
-    #
-    #     use Rack::Errors
-    #     use AuthMiddleware, 'admin', 'seCrEt'
-    #
-    def use(middleware, *args, &block)
-      @options[:middlewares] << Middleware.new(middleware, args, block)
     end
 
     ##
@@ -402,23 +386,25 @@ class Signpost
     # Returns: {Signpost::Router}
     #
     def build
-      Router.new(@builders, @options)
+      Router.new(@builders, @options, true)
     end
-
-    attr_reader :builders
 
   private
 
     def initialize(options={}, &block)
-      @options  = DEFAULT_OPTIONS.merge(options)
-      @subroute = options[:subroute] || '/'
-      @builders = []
+      @options   = DEFAULT_OPTIONS.merge(options)
+      @subroute  = options[:subroute] || '/'
+      @builders  = []
 
       instance_eval(&block) if block_given?
     end
 
     def absolute(path)
       File.join(@subroute, path.gsub(SUBPATH_REG, ''))
+    end
+
+    def root_name
+      'root'
     end
 
   end

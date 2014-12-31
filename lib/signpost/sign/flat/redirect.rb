@@ -1,6 +1,6 @@
 class Signpost
-  class Builder
-    class Simple
+  class Sign
+    class Flat
 
       class Redirect < self
 

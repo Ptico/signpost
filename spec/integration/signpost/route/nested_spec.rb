@@ -5,7 +5,7 @@ describe Signpost::Route::Nested do
 
   let(:subpath) { '/magic' }
   let(:router) do
-    Signpost::Builder.new(nested: true, subroute: subpath) do
+    Signpost::Builder::Nested.new(subroute: subpath) do
       get('/unicorns').to('Unicorns#index')
     end.build
   end

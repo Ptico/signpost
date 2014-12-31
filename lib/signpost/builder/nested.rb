@@ -1,29 +1,32 @@
 class Signpost
   class Builder
-    class Nested
+    class Nested < self
+      attr_reader :builders
 
-      def expose(_router, routing_table, named_routes)
-        subrouter = @builder.build
-        subroutes = subrouter.routes
+      ##
+      # Add middleware to routes
+      #
+      # Params:
+      # - middleware {String|Class} middleware or middleware name
+      # - *args                     middleware arguments which will be used for instantiating
+      #
+      # Example:
+      #
+      #     use Rack::Errors
+      #     use AuthMiddleware, 'admin', 'seCrEt'
+      #
+      def use(middleware, *args, &block)
+        @options[:middlewares] << Middleware.new(middleware, args, block)
+      end
 
-        named_routes.merge!(subrouter.named_routes)
-
-        subroutes.keys.reject { |m| subroutes[m].empty? }.each do |method|
-          routing_table[method] << Route::Nested.new(@subpath, subrouter)
-        end
+      def build
+        Router.new(@builders, @options)
       end
 
     private
 
-      def initialize(subpath, options, &block)
-        @subpath = subpath
-        @options = options.merge({
-          subroute: @subpath,
-          nested: true,
-          middlewares: options[:middlewares].dup
-        })
-
-        @builder = Builder.new(@options, &block)
+      def root_name
+        nil
       end
 
     end

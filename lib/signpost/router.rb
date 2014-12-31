@@ -30,7 +30,7 @@ class Signpost
         end
       end
 
-      not_found unless @options[:nested]
+      default_action
     end
 
     def expand(name, data={})
@@ -39,10 +39,11 @@ class Signpost
 
   private
 
-    def initialize(builders, options)
+    def initialize(builders, options, root=false)
       @routes = SUPPORTED_METHODS.each_with_object({}) { |m, h| h[m] = [] }.freeze
       @named_routes = {}
       @options = options
+      @root    = root
 
       @params_key = options[:params_key]
 
@@ -51,8 +52,8 @@ class Signpost
       end
     end
 
-    def not_found
-      [404, {}, ['']]
+    def default_action
+      @root ? [404, {}, ['']] : nil
     end
   end
 end
