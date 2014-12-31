@@ -117,7 +117,11 @@ class Signpost
         pattern = options[:controller_format] || '%{name}'
 
         name = pattern % names
-        name = "#{Inflecto.camelize(options[:namespace].to_s)}::#{name}" if options[:namespace]
+
+        if options[:namespace]
+          namespace = Array(options[:namespace]).join('/')
+          name = "#{Inflecto.camelize(namespace)}::#{Inflecto.camelize(name)}"
+        end
 
         name
       end

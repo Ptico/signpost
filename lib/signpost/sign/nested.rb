@@ -1,6 +1,6 @@
 class Signpost
-
   class Sign
+
     class Nested
 
       def expose(_router, routing_table, named_routes)
@@ -18,16 +18,22 @@ class Signpost
 
       def initialize(subpath, options, &block)
         @subpath = subpath
-        @options = options.merge({
-          subroute: @subpath,
-          nested: true,
-          middlewares: options[:middlewares].dup
-        })
+        @options = options
+        @builder = builder.new(builder_options, &block)
+      end
 
-        @builder = Builder::Nested.new(@options, &block)
+      def builder
+        Builder::Nested
+      end
+
+      def builder_options
+        @options.merge({
+          subroute:    @subpath,
+          middlewares: @options[:middlewares].dup
+        })
       end
 
     end
-  end
 
+  end
 end

@@ -33,8 +33,8 @@ class Signpost
         # Params:
         # - name {String|Symbol} route name
         #
-        def as(name)
-          @name = name
+        def as(name, postfix=nil)
+          @name = (postfix ? [name, @namespace, postfix] : [@namespace, name]).flatten.compact.join('_')
           self
         end
 

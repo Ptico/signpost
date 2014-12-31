@@ -50,6 +50,7 @@ RSpec.configure do |config|
     # For more details, see:
     #   - http://myronmars.to/n/dev-blog/2012/06/rspecs-new-expectation-syntax
     expectations.syntax = :expect
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
   end
 
   # rspec-mocks config goes here. You can use an alternate test double

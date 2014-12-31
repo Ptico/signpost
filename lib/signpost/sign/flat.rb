@@ -49,8 +49,9 @@ class Signpost
     private
 
       def initialize(pattern, options, &block)
-        @pattern = pattern
-        @options = options
+        @pattern   = pattern
+        @options   = options
+        @namespace = options[:namespace]
 
         @params = {}
         @endpoint_params = {}

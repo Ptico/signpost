@@ -374,6 +374,11 @@ class Signpost
       @builders << Sign::Nested.new(absolute(path), @options, &block)
     end
 
+    def namespace(name, &block)
+      options = @options.merge(namespace: [@options[:namespace], name].compact)
+      @builders << Sign::Namespace.new(absolute(name.to_s), options, &block)
+    end
+
     def redirect(path, &block)
       builder = Sign::Flat::Redirect.new(absolute(path), @options, &block)
       @builders << builder
