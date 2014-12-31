@@ -2,6 +2,8 @@
 
 Standalone router for rack
 
+Release `0.1.0` is a technical preview. Feel free to create issues for bugs, suggestions or feature requests.
+
 ## Basic usage
 
 ```ruby
