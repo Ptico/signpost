@@ -118,6 +118,7 @@ describe Signpost::Endpoint::Resolver do
             { action: 'test' }
           end
 
+
           it { expect(subject.endpoint).to be_a(Signpost::Endpoint::Dynamic) }
           it { expect(subject.params).to   include(action: 'test') }
         end
@@ -155,28 +156,54 @@ describe Signpost::Endpoint::Resolver do
     end
 
     context 'with namespace' do
-      let(:spec) do
-        { controller: 'Test', action: 'show' }
+      context 'when with controller' do
+        let(:spec) do
+          { controller: 'Test', action: 'show' }
+        end
+
+        context 'when string' do
+          let(:options) do
+            { namespace: 'Foo' }
+          end
+
+          it 'resolves Foo::Test not Test' do
+            expect(subject.endpoint).to equal(Foo::Test)
+          end
+        end
+
+        context 'when symbol' do
+          let(:options) do
+            { namespace: :foo }
+          end
+
+          it 'resolves Foo::Test not Test' do
+            expect(subject.endpoint).to equal(Foo::Test)
+          end
+        end
       end
 
-      context 'when string' do
-        let(:options) do
-          { namespace: 'Foo' }
+      context 'when without controller' do
+        let(:spec) do
+          { action: 'test' }
         end
 
-        it 'resolves Foo::Test not Test' do
-          expect(subject.endpoint).to equal(Foo::Test)
-        end
-      end
+        context 'when action is a class' do
+          let(:options) do
+            { namespace: 'foo' }
+          end
 
-      context 'when symbol' do
-        let(:options) do
-          { namespace: :foo }
+          it { expect(subject.endpoint).to equal(Foo::Test) }
         end
 
-        it 'resolves Foo::Test not Test' do
-          expect(subject.endpoint).to equal(Foo::Test)
+        context 'when action is not a class' do
+          let(:options) do
+            { namespace: 'test' }
+          end
+
+          it { expect(subject.endpoint).to equal(Test) }
+          it { expect(subject.params).to   include(action: 'test') }
         end
+
       end
     end
 

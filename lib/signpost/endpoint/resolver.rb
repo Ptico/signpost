@@ -28,12 +28,26 @@ class Signpost
         end
 
         unless endpoint
-          endpoint = if params[:action].kind_of?(Class)
-            params[:action]
+          if params[:action].kind_of?(Class)
+            endpoint = params[:action]
           elsif params[:controller]
-            params[:controller]
+            endpoint = params[:controller]
           else
-            Dynamic.new(@options, params)
+            if params[:action]
+              # Try namespace as endpoint
+              # this must be refactored in new year
+              if options[:namespace]
+                specc = { action: params[:action], controller: options[:namespace] }
+                opts = options.dup
+                opts.delete(:namespace)
+
+                result = self.class.new(specc, opts).resolve
+
+                return result if result
+              end
+            end
+
+            endpoint = Dynamic.new(@options, params)
           end
         end
 

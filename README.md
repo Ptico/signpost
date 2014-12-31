@@ -215,9 +215,71 @@ get('/stats').to(Dashboard).constraints(
 )
 ```
 
+## Named routes
+
+Named routes can be used in path helpers:
+
+```ruby
+builder = Signpost::Builder.new do
+  root.to('Home')
+
+  get('/users/:id').to('users#show').as(:show_users)
+
+  namespace :users do
+    post('/types').to('types#create').as(:create, :type)
+  end
+end
+
+router = builder.build
+
+router.expand(:root) # '/'
+router.expand(:show_users, id: 2) # /users/2
+router.expand(:create_users_type) # /users/types
+```
+
 ## Nested routes
 
+Routes can be grouped into subroute for better readability and performance
+
+```ruby
+Signpost::Builder.new do
+  within('/users') do
+    root.to(controller: 'users', action: 'index')
+
+    patch(':id').to(controller: 'users', action: 'update') # /users/:id
+    get('inventory').to('users#inventory')  # /users/inventory
+    get('/inventory').to('users#inventory') # the same, leading slash will be ignored
+
+    within('/types') do
+      post('/').to('users/types#create') # /users/types
+      patch(':id').to('users/types#update') # /users/2
+    end
+  end
+end
+```
+
+note, that `within` does not introduce class or name namespace. So `root` inside `within` block will not add any named route.
+Also, for sinatra-style, only trailing slash will match (this is the subject to fix).
+
 ## Namespaces
+
+Namespace is basically just `within` which adds class and named route namespace:
+
+```ruby
+namespace :admin do
+  root.to('dashboard') # :admin_root name, /admin path and Admin::Dashboard controller
+
+  namespace :types do
+    get('edit').to(action: 'edit').as(:edit) # :admin_types_edit name, Admin::Types controller and /admin/types/edit path
+
+    get(':id/properties').to(action: 'show').as(:show, :properties) # :show_admin_types_properties name
+  end
+end
+```
+
+## Resources
+
+Will be introduced in `0.2.0`
 
 ## Redirects
 
@@ -269,10 +331,6 @@ redirect('/ponies/:type') do
   expand(:show_unicorn, params['type'].downcase)
 end
 ```
-
-## Named routes
-
-
 
 ## Options
 
