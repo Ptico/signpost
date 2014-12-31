@@ -182,6 +182,55 @@ builder.get('/users').to(Users::Index)
 
 ## Redirects
 
+Simple redirects:
+
+```ruby
+Signpost::Builder.new do
+  redirect('/horses').to('/unicorns').permanent
+  redirect('/ponies').to('/unicorns')
+  redirect('/zebras').to('/unicorns').with_status(307)
+end
+```
+
+by default, redirect uses `303` code. It can be changed in [options](#options)
+
+
+Pattern to pattern redirects are also allowed:
+
+```ruby
+redirect('/birds/:id').to('/dragons/:id')
+redirect('/goats/:id').to('/unicorns/{id}s')
+```
+
+
+If source has more parameters than target, additional values will be ignored. To change this, you can use `:append` directive:
+
+```ruby
+redirect('/goats/:type/:id').to('/unicorns/:id', :append)
+```
+
+or set option `:default_redirect_additional_values` to `:append`. All additional values will be applied as query string params: `/goats/angora/2` will be redirected to `/unicorns/2?type=angora`.
+
+
+If target route have name, it's easy to reuse the pattern:
+
+```ruby
+get('/unicorns/:id').to('unicorns#show').as(:show_unicorn)
+redirect('/zebras/:id').to(:show_unicorn)
+```
+
+
+For more complex redirects you can use block:
+
+```ruby
+redirect('/horses/:id') do
+  "/horses/#{params['id']}/#{env['REQUEST_METHOD']}"
+end
+redirect('/ponies/:type') do
+  expand(:show_unicorn, params['type'].downcase)
+end
+```
+
 ## Named routes
 
 ## Options
@@ -193,4 +242,4 @@ builder.get('/users').to(Users::Index)
 | `:params_key` | `'router.params'` | | Key used for rack environment to conduct matched values, controller name and action name |
 | `:rack_params` | `false` | true, false | To be compatible with `Rack::Request` params, router params can be merged into `rack.request.query_hash`. This option will turn on this behaviour |
 | `:default_redirect_status` | `303` | Any `3xx` code | HTTP Status wich will be used by `redirect` when not specified |
-| `:default_redirect_additional_values` | :ignore | `:ignore`, `:append`, `raise` | Tells `redirect` how to handle additional matched values when pattern like `/:foo/:bar` pointed to pattern like `/:foo`. When `:append` – additional values will be appended as query string params |
+| `:default_redirect_additional_values` | :ignore | See [Redirects](#redirects) |
