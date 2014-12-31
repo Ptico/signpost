@@ -74,7 +74,7 @@ will generate routes with `root` and `admin_root` names. For named routes usage 
 
 ### Patterns
 
-Signpost pattern matching backed by awesome [mustermann](https://github.com/rkh/mustermann) gem.
+Signpost pattern matching powered by awesome [mustermann](https://github.com/rkh/mustermann) gem.
 By default it uses sinatra-style patterns, but you can easily change the style by `:style` option:
 
 ```ruby
@@ -176,6 +176,45 @@ builder.get('/users').to(Users::Index)
 
 ## Constraints
 
+### Path constraints
+
+```ruby
+get('/users/:id').to('users#show').capture(/\d+/)
+get('/users/:id').to('users#show').capture(:digit)
+```
+
+Available POSIX character classes are: `:alnum`, `:alpha`, `:blank`, `:cntrl`, `:digit`, `:graph`, `:lower`, `:print`, `:punct`, `:space`, `:upper`, `:xdigit`, `:word` and `:ascii`
+
+
+If you need more:
+
+```ruby
+get('/unicorns/:id_or_name').to('unicorns#show').capture([/\d+/, :word])
+
+get('/unicorns/:type/:id').to('unicorns#show').capture(id: /\d+/, type: :word)
+get('/images/:id.:ext').to('images').capture(id: /\d+/, ext: ['png', 'jpg'])
+```
+
+### Exclude constraints
+
+```ruby
+delete('/users/:name').to('users#destroy').except('/users/admin')
+
+get('/pages/*slug/edit').to('pages#edit').except('/pages/system/*/edit')
+```
+
+### Logical constraints
+
+```ruby
+get('/stats').to(Dashboard).constraint(->(env) { env['RACK_ENV'] == 'development' })
+get('/admin').to('admin#index').constraint(IpRestrictor.new) # Objects with #call method allowed too
+
+get('/stats').to(Dashboard).constraints(
+  ->(env) { env['RACK_ENV'] == 'development' },
+  ->(env) { env['admin'] }
+)
+```
+
 ## Nested routes
 
 ## Namespaces
@@ -233,6 +272,8 @@ end
 
 ## Named routes
 
+
+
 ## Options
 
 | Name | Default | Values | Description |
@@ -242,4 +283,5 @@ end
 | `:params_key` | `'router.params'` | | Key used for rack environment to conduct matched values, controller name and action name |
 | `:rack_params` | `false` | true, false | To be compatible with `Rack::Request` params, router params can be merged into `rack.request.query_hash`. This option will turn on this behaviour |
 | `:default_redirect_status` | `303` | Any `3xx` code | HTTP Status wich will be used by `redirect` when not specified |
-| `:default_redirect_additional_values` | :ignore | See [Redirects](#redirects) |
+
+For `:default_redirect_additional_values` see [Redirects](#redirects)
