@@ -6,7 +6,7 @@ class Signpost
       default_redirect_additional_values: :ignore,
       style: :sinatra,
       middlewares: [],
-      rack_params: true
+      rack_params: false
     }.freeze
     SUBPATH_REG = /^\//.freeze
 
