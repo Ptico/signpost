@@ -145,6 +145,26 @@ describe 'Endpoint variants' do
 
           it { expect(result).to eql(id.to_s) }
         end
+
+        # get('/users/:name') do
+        #   body "Hello #{params['name']}"
+        #   status 200
+        #   headers['Content-Type'] = 'text/plain'
+        # end
+        context 'when block have no arguments' do
+          before(:each) do
+            builder.send(method, '/users/:name') do
+              body "Hello #{params['name']}"
+              status 200
+              headers['Content-Type'] = 'text/plain'
+            end
+          end
+          let(:path) { "/users/John" }
+
+          it { expect(result[0]).to    equal(200) }
+          it { expect(result[1]).to    eql({ 'Content-Type' => 'text/plain' }) }
+          it { expect(result[2][0]).to eql("Hello John") }
+        end
       end
 
       describe 'dynamic' do

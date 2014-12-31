@@ -17,6 +17,7 @@ require 'signpost/endpoint/resolver'
 require 'signpost/endpoint/builder'
 require 'signpost/endpoint/dynamic'
 require 'signpost/endpoint/redirect'
+require 'signpost/endpoint/action'
 
 require 'signpost/sign/flat'
 require 'signpost/sign/flat/path'

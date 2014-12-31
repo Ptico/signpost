@@ -72,7 +72,11 @@ class Signpost
 
       private
 
-        def build_stack(_router)
+        def build_stack(router)
+          if @block && @block.arity == 0
+            @to = Endpoint::Action.new(@block, router)
+          end
+
           resolved = Endpoint::Resolver.new(@to || @block, @options).resolve
 
           @endpoint_params = resolved.params
