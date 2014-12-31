@@ -97,6 +97,15 @@ describe Signpost::Endpoint::Resolver do
 
         context 'with action as constant' do
           let(:spec) do
+            { controller: 'Foo', action: Test }
+          end
+
+          it { expect(subject.endpoint).to equal(Foo::Test) }
+          it { expect(subject.params).to   include(controller: Foo, action: Foo::Test) }
+        end
+
+        context 'when action as string and it is a class' do
+          let(:spec) do
             { controller: 'Foo', action: 'test' }
           end
 
