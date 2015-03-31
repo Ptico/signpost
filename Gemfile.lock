@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     signpost (0.1.0)
-      inflecto
+      inflecto (= 0.0.2)
       mustermann (~> 0.4)
 
 GEM
