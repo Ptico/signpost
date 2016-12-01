@@ -1,8 +1,6 @@
 class Signpost
   class Builder
     class Nested < self
-      attr_reader :builders
-
       ##
       # Add middleware to routes
       #
