@@ -5,7 +5,6 @@ class Signpost
       default_redirect_status: 303,
       default_redirect_additional_values: :ignore,
       style: :sinatra,
-      middlewares: [],
       rack_params: false
     }.freeze
     SUBPATH_REG = /^\//.freeze
@@ -22,7 +21,7 @@ class Signpost
     #
     def root(&block)
       builder = Sign::Flat::Path::GET.new(absolute('/'), @options, &block)
-      @builders.unshift(builder)
+      @signs.unshift(builder)
       builder.as(root_name)
     end
 
@@ -67,7 +66,7 @@ class Signpost
     #
     def get(path, &block)
       builder = Sign::Flat::Path::GET.new(absolute(path), @options, &block)
-      @builders << builder
+      @signs << builder
       builder
     end
 
@@ -112,7 +111,7 @@ class Signpost
     #
     def post(path, &block)
       builder = Sign::Flat::Path::POST.new(absolute(path), @options, &block)
-      @builders << builder
+      @signs << builder
       builder
     end
 
@@ -157,7 +156,7 @@ class Signpost
     #
     def put(path, &block)
       builder = Sign::Flat::Path::PUT.new(absolute(path), @options, &block)
-      @builders << builder
+      @signs << builder
       builder
     end
 
@@ -199,7 +198,7 @@ class Signpost
     #
     def patch(path, &block)
       builder = Sign::Flat::Path::PATCH.new(absolute(path), @options, &block)
-      @builders << builder
+      @signs << builder
       builder
     end
 
@@ -244,7 +243,7 @@ class Signpost
     #
     def options(path, &block)
       builder = Sign::Flat::Path::OPTIONS.new(absolute(path), @options, &block)
-      @builders << builder
+      @signs << builder
       builder
     end
 
@@ -286,7 +285,7 @@ class Signpost
     #
     def delete(path, &block)
       builder = Sign::Flat::Path::DELETE.new(absolute(path), @options, &block)
-      @builders << builder
+      @signs << builder
       builder
     end
 
@@ -334,7 +333,19 @@ class Signpost
     #
     def match(path, &block)
       builder = Sign::Flat::Path::Any.new(absolute(path), @options, &block)
-      @builders << builder
+      @signs << builder
+      builder
+    end
+
+    ##
+    # Define redirection route
+    #
+    # Params:
+    # - path {String|RegExp} pattern of the request path which should be matched
+    #
+    def redirect(path, &block)
+      builder = Sign::Flat::Redirect.new(absolute(path), @options, &block)
+      @signs << builder
       builder
     end
 
@@ -371,18 +382,48 @@ class Signpost
     #     end
     #
     def within(path, &block)
-      @builders << Sign::Nested.new(absolute(path), @options, &block)
+      @signs << Sign::Nested.new(absolute(path), @options, &block)
     end
 
+    ##
+    # Define namespace
+    #
+    # Params:
+    # - name {String|Symbol} namespace name
+    #
+    # Yields: routes dsl
+    #
+    # Example:
+    #
+    #     namespace :admin do
+    #       root.to('dashboard') # :admin_root name, /admin path and Admin::Dashboard controller
+    #
+    #       namespace :types do
+    #         get('edit').to(action: 'edit').as(:edit) # :admin_types_edit name, Admin::Types controller and /admin/types/edit path
+    #
+    #         get(':id/properties').to(action: 'show').as(:show, :properties) # :show_admin_types_properties name
+    #       end
+    #     end
+    #
     def namespace(name, &block)
       options = @options.merge(namespace: resolve_namespace([@options[:namespace], name]))
-      @builders << Sign::Namespace.new(absolute(name.to_s), options, &block)
+      @signs << Sign::Namespace.new(absolute(name.to_s), options, &block)
     end
 
-    def redirect(path, &block)
-      builder = Sign::Flat::Redirect.new(absolute(path), @options, &block)
-      @builders << builder
-      builder
+    ##
+    # Add middleware to routes
+    #
+    # Params:
+    # - middleware {String|Class} middleware or middleware name
+    # - *args                     middleware arguments which will be used for instantiating
+    #
+    # Example:
+    #
+    #     use Rack::Errors
+    #     use AuthMiddleware, 'admin', 'seCrEt'
+    #
+    def use(middleware, *args, &block)
+      @middlewares << Middleware.new(middleware, args, block)
     end
 
     ##
@@ -391,15 +432,16 @@ class Signpost
     # Returns: {Signpost::Router}
     #
     def build
-      Router.new(@builders, @options, true)
+      Router.new(@signs, @middlewares, @options, true)
     end
 
   private
 
     def initialize(options={}, &block)
-      @options   = DEFAULT_OPTIONS.merge(options)
-      @subroute  = options[:subroute] || '/'
-      @builders  = []
+      @options     = DEFAULT_OPTIONS.merge(options)
+      @subroute    = options[:subroute] || '/'
+      @signs       = []
+      @middlewares = []
 
       instance_eval(&block) if block_given?
     end

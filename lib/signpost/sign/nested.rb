@@ -29,7 +29,7 @@ class Signpost
       def builder_options
         @options.merge({
           subroute:    @subpath,
-          middlewares: @options[:middlewares].dup
+          middlewares: @middlewares
         })
       end
 

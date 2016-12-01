@@ -23,7 +23,7 @@ class Signpost
             end
 
             env[params_key] = params
-            result = route.endpoint.call(env)
+            result = to_app(route.endpoint).call(env)
 
             if result[1] && result[1]['X-Cascade'] == 'pass'
               next
@@ -44,8 +44,9 @@ class Signpost
 
   private
 
-    def initialize(builders, options, root=false)
+    def initialize(builders, middlewares, options, root=false)
       @routes = SUPPORTED_METHODS.each_with_object({}) { |m, h| h[m] = [] }.freeze
+      @middlewares = middlewares
       @named_routes = {}
       @options = options
       @root    = root
@@ -55,6 +56,10 @@ class Signpost
       builders.each do |builder|
         builder.expose(self, @routes, @named_routes)
       end
+    end
+
+    def to_app(endpoint)
+      @middlewares.reverse_each.inject(endpoint) { |app, m| m.middleware.new(app, *m.args, &m.block) }
     end
 
     def default_action

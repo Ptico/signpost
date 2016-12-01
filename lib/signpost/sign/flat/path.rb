@@ -90,7 +90,7 @@ class Signpost
             @endpoint_params = resolved.params
           end
 
-          Endpoint::Builder.new(endpoint, @options[:middlewares] || []).build
+          endpoint
         end
 
         def build_params
