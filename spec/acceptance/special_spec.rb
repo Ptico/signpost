@@ -9,6 +9,7 @@ describe 'Special routes' do
 
   let(:router) { builder.build }
   let(:result) { router.call(env) }
+  let(:body)   { result[2][0] }
 
   let(:env) { Rack::MockRequest.env_for(uri, method: method) }
   let(:id)  { rand(100) }
@@ -18,7 +19,7 @@ describe 'Special routes' do
     let(:uri)    { '/' }
 
     it 'should match root first' do
-      expect(result).to eql('unicorns|index')
+      expect(body).to eql('unicorns|index')
     end
   end
 

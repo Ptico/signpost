@@ -17,6 +17,7 @@ describe 'Namespaces' do
 
   let(:router) { builder.build }
   let(:result) { router.call(env) }
+  let(:body)   { result[2][0] }
 
   let(:named_routes) { router.named_routes.keys }
 
@@ -28,7 +29,7 @@ describe 'Namespaces' do
     let(:uri)    { '/magic/dragons' }
 
     it 'resolves constant under namespace' do
-      expect(result).to eql('magic/dragons|index')
+      expect(body).to eql('magic/dragons|index')
     end
 
     it 'prepends namespace to name' do
@@ -42,7 +43,7 @@ describe 'Namespaces' do
     let(:uri)    { '/magic/' }
 
     it 'adds root path' do
-      expect(result).to eql('magic/dragons|index')
+      expect(body).to eql('magic/dragons|index')
     end
 
     it 'adds root named route' do
@@ -56,7 +57,7 @@ describe 'Namespaces' do
     let(:uri)    { "/magic/dragons/types/#{id}" }
 
     it 'resolves constant under nested namespace' do
-      expect(result).to eql("magic/dragon-type|create|#{id}")
+      expect(body).to eql("magic/dragon-type|create|#{id}")
     end
 
     it 'prepends and appends names to nested namespaces' do

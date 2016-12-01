@@ -7,7 +7,7 @@ class Signpost
         resolver = Resolver.new({
           controller: @spec[:controller] || controller,
           action: @spec[:action] || action
-        }, @options).resolve
+        }, @options[:namespace], @options[:controller_format]).resolve
 
         resolver.endpoint.call(env)
       end

@@ -17,7 +17,7 @@ describe Signpost::Route::Nested do
   context 'when matches' do
     let(:uri) { '/magic/unicorns' }
 
-    it { expect(result).to eql('unicorns|index') }
+    it { expect(result[2][0]).to eql('unicorns|index') }
   end
 
   context 'when subpath not matches' do

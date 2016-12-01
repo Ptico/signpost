@@ -22,6 +22,8 @@ describe 'Nested routes' do
 
   let(:router) { builder.build }
   let(:result) { router.call(env) }
+  let(:body)   { result[2][0] }
+  let(:status) { result[0] }
 
   let(:env) { Rack::MockRequest.env_for(uri, method: method) }
   let(:id)  { rand(100) }
@@ -30,14 +32,14 @@ describe 'Nested routes' do
     let(:method) { 'GET' }
     let(:uri)    { '/magic/dragons' }
 
-    it { expect(result).to eql('dragons|index') }
+    it { expect(body).to eql('dragons|index') }
   end
 
   describe 'nested routes' do
     let(:method) { 'PUT' }
     let(:uri)    { "/magic/types/dragons/#{id}" }
 
-    it { expect(result).to eql("dragon-type|create|#{id}") }
+    it { expect(body).to eql("dragon-type|create|#{id}") }
   end
 
   describe 'middlewares' do
@@ -50,7 +52,7 @@ describe 'Nested routes' do
         env['password'] = 'cribble-crable'
       end
 
-      it { expect(result).to eql('admin|dragons|index') }
+      it { expect(body).to eql('admin|dragons|index') }
     end
 
     context 'when auth not pass' do
@@ -59,7 +61,7 @@ describe 'Nested routes' do
         env['password'] = 'imlord'
       end
 
-      it { expect(result).to eql(403) }
+      it { expect(status).to eql(403) }
     end
   end
 
@@ -67,7 +69,7 @@ describe 'Nested routes' do
     let(:method) { 'GET' }
     let(:uri)    { '/magic/unicorns' }
 
-    it { expect(result).to eql('unicorns|index') }
+    it { expect(body).to eql('unicorns|index') }
   end
 
   context 'root inside nested' do

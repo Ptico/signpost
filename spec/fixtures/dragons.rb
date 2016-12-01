@@ -2,7 +2,7 @@ class Dragons < ActionController
   module Types
     class Create
       def self.call(env)
-        "dragon-type|create|#{env['router.params']['id']}"
+        [200, {}, ["dragon-type|create|#{env['router.params']['id']}"]]
       end
     end
   end
@@ -36,7 +36,7 @@ module Magic
 
     class Types
       def self.call(env)
-        "magic/dragon-type|create|#{env['router.params']['id']}"
+        [200, {}, ["magic/dragon-type|create|#{env['router.params']['id']}"]]
       end
     end
   end

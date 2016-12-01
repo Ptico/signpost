@@ -197,6 +197,14 @@ RSpec.describe Signpost::Resolver do
           it { expect(subject.params).to include(controller: TestsController, action: 'foo') }
         end
 
+        context '%plural_name with only action' do
+          let(:format) { '%{plural_name}Controller' }
+          let(:spec)   { 'test' }
+
+          it { expect(subject.endpoint).to equal(Test) }
+          it { expect(subject.params).to include(controller: nil, action: Test) }
+        end
+
         context '%plural_name within module' do
           let(:format) { '%{plural_name}Controller' }
           let(:spec)   { 'Foo::Person#show' }
@@ -264,6 +272,14 @@ RSpec.describe Signpost::Resolver do
           it { expect(subject.endpoint).to equal(Foo::Bar::CompanyController::Edit) }
           it { expect(subject.params).to include(controller: Foo::Bar::CompanyController, action: Foo::Bar::CompanyController::Edit) }
         end
+
+        context '%plural_name with only action' do
+          let(:format) { '%{plural_name}Controller' }
+          let(:spec)   { 'test' }
+
+          it { expect(subject.endpoint).to equal(Foo::Test) }
+          it { expect(subject.params).to include(controller: nil, action: Foo::Test) }
+        end
       end
 
       context 'when endpoint can not be resolved' do
@@ -282,6 +298,53 @@ RSpec.describe Signpost::Resolver do
 
           it { expect { subject }.to raise_error(Signpost::Resolver::UnresolvedError) }
         end
+      end
+    end
+
+    context 'when symbol' do
+      context 'without namespace and format' do
+        let(:namespace) { nil }
+        let(:format)    { nil }
+        let(:spec)      { :test }
+
+        it { expect(subject.endpoint).to equal(Test) }
+        it { expect(subject.params).to   include(controller: nil, action: Test) }
+      end
+
+      context 'with namespace (action endpoint exists)' do
+        let(:namespace) { Foo }
+        let(:format)    { nil }
+        let(:spec)      { :test }
+
+        it { expect(subject.endpoint).to equal(Foo::Test) }
+        it { expect(subject.params).to   include(controller: nil, action: Foo::Test) }
+      end
+
+      context 'with namespace (action endpoint not exists)' do
+        let(:namespace) { Foo }
+        let(:format)    { nil }
+        let(:spec)      { :index }
+
+        it { expect(subject.endpoint).to equal(Foo) }
+        it { expect(subject.params).to   include(controller: Foo, action: 'index') }
+      end
+
+      context 'with format' do
+        let(:namespace) { nil }
+        let(:format)    { '%{plural_name}Controller' }
+        let(:spec)      { 'test' }
+
+        it { expect(subject.endpoint).to equal(Test) }
+        it { expect(subject.params).to include(controller: nil, action: Test) }
+      end
+
+      context 'with namespace and format' do
+        let(:namespace) { Foo }
+        let(:format)    { '%{plural_name}Controller' }
+        let(:spec)      { :test }
+
+        it { expect(subject.endpoint).to equal(Foo::Test) }
+        it { expect(subject.params).to   include(controller: nil, action: Foo::Test) }
       end
     end
 
@@ -311,6 +374,15 @@ RSpec.describe Signpost::Resolver do
         context 'controller as string, action as string' do
           let(:spec) do
             { controller: 'test', action: 'bar' }
+          end
+
+          it { expect(subject.endpoint).to equal(Test::Bar) }
+          it { expect(subject.params).to   include(controller: Test, action: Test::Bar) }
+        end
+
+        context 'controller as symbol, action as symbol' do
+          let(:spec) do
+            { controller: :test, action: :bar }
           end
 
           it { expect(subject.endpoint).to equal(Test::Bar) }

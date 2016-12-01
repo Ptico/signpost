@@ -375,7 +375,7 @@ class Signpost
     end
 
     def namespace(name, &block)
-      options = @options.merge(namespace: [@options[:namespace], name].compact)
+      options = @options.merge(namespace: resolve_namespace([@options[:namespace], name]))
       @builders << Sign::Namespace.new(absolute(name.to_s), options, &block)
     end
 
@@ -406,6 +406,17 @@ class Signpost
 
     def absolute(path)
       File.join(@subroute, path.gsub(SUBPATH_REG, ''))
+    end
+
+    def resolve_namespace(namespaces)
+      namespaces.compact.inject(Object) do |constant, name|
+        name = Inflecto.camelize(name.to_s)
+        if constant.constants.include?(name.to_sym)
+          constant.const_get(name)
+        else
+          return nil
+        end
+      end
     end
 
     def root_name

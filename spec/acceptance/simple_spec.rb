@@ -20,6 +20,7 @@ describe 'Simple routes' do
 
   let(:router) { builder.build }
   let(:result) { router.call(env) }
+  let(:body)   { result[2][0] }
 
   let(:env) { Rack::MockRequest.env_for(uri, method: method) }
   let(:id)  { rand(100) }
@@ -30,21 +31,21 @@ describe 'Simple routes' do
     context 'request without id' do
       let(:uri) { '/dragons' }
 
-      it { expect(result).to eql('dragons|index') }
+      it { expect(body).to eql('dragons|index') }
     end
 
     context 'request with id' do
       let(:uri) { "/dragons/#{id}" }
 
-      it { expect(result).to eql("dragons|show|#{id}") }
+      it { expect(body).to eql("dragons|show|#{id}") }
     end
 
     context 'match' do
       let(:uri) { '/dragons/any/get' }
 
-      it { expect(result['router.params']['type']).to       eql('get') }
-      it { expect(result['router.params']['controller']).to eql(Echo) }
-      it { expect(result['router.params']['match']).to      be(true) }
+      it { expect(result['router.params']['type']).to   eql('get') }
+      it { expect(result['router.params']['action']).to eql(Echo) }
+      it { expect(result['router.params']['match']).to  be(true) }
     end
   end
 
@@ -54,15 +55,15 @@ describe 'Simple routes' do
     context 'request' do
       let(:uri) { '/dragons/' }
 
-      it { expect(result).to eql('dragons|create') }
+      it { expect(body).to eql('dragons|create') }
     end
 
     context 'match' do
       let(:uri) { '/dragons/any/post' }
 
-      it { expect(result['router.params']['type']).to       eql('post') }
-      it { expect(result['router.params']['controller']).to eql(Echo) }
-      it { expect(result['router.params']['match']).to      be(true) }
+      it { expect(result['router.params']['type']).to   eql('post') }
+      it { expect(result['router.params']['action']).to eql(Echo) }
+      it { expect(result['router.params']['match']).to  be(true) }
     end
   end
 
@@ -72,15 +73,15 @@ describe 'Simple routes' do
     context 'request' do
       let(:uri) { "/dragons/type/#{id}" }
 
-      it { expect(result).to eql("dragon-type|create|#{id}") }
+      it { expect(body).to eql("dragon-type|create|#{id}") }
     end
 
     context 'match' do
       let(:uri) { '/dragons/any/put' }
 
-      it { expect(result['router.params']['type']).to       eql('put') }
-      it { expect(result['router.params']['controller']).to eql(Echo) }
-      it { expect(result['router.params']['match']).to      be(true) }
+      it { expect(result['router.params']['type']).to   eql('put') }
+      it { expect(result['router.params']['action']).to eql(Echo) }
+      it { expect(result['router.params']['match']).to  be(true) }
     end
   end
 
@@ -90,7 +91,7 @@ describe 'Simple routes' do
     context 'request' do
       let(:uri) { "/dragons/#{id}" }
 
-      it { expect(result).to eql("dragons|edit|#{id}") }
+      it { expect(body).to eql("dragons|edit|#{id}") }
     end
 
     context 'match' do
@@ -104,7 +105,7 @@ describe 'Simple routes' do
     context 'request' do
       let(:uri) { "/dragons/#{id}" }
 
-      it { expect(result).to eql("dragons|destroy|#{id}") }
+      it { expect(body).to eql("dragons|destroy|#{id}") }
     end
 
     context 'match' do

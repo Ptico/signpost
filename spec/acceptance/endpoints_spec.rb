@@ -5,6 +5,7 @@ describe 'Endpoint variants' do
 
   let(:router) { builder.build }
   let(:result) { router.call(env) }
+  let(:body)   { result[2][0] }
 
   %w(get post put patch options delete).each do |method|
     describe "for #{method}" do
@@ -21,21 +22,21 @@ describe 'Endpoint variants' do
         context 'when namespace, controller and action' do
           let(:spec) { 'dragons/types#create' }
 
-          it { expect(result).to eql("dragon-type|create|#{id}") }
+          it { expect(body).to eql("dragon-type|create|#{id}") }
         end
 
         # put('/dragons/:id').to('Dragons::Types::Create')
         context 'when namespace and controller' do
           let(:spec) { 'Dragons::Types::Create' }
 
-          it { expect(result).to eql("dragon-type|create|#{id}") }
+          it { expect(body).to eql("dragon-type|create|#{id}") }
         end
 
         # put('/dragons/:id').to('dragons#show')
         context 'when controller and action' do
           let(:spec) { 'dragons#show' }
 
-          it { expect(result).to eql("dragons|show|#{id}") }
+          it { expect(body).to eql("dragons|show|#{id}") }
         end
 
         # put('/dragons/:id').to('Echo')
@@ -56,7 +57,7 @@ describe 'Endpoint variants' do
             { controller: 'Dragons', action: 'show' }
           end
 
-          it { expect(result).to eql("dragons|show|#{id}") }
+          it { expect(body).to eql("dragons|show|#{id}") }
         end
 
         # put('/dragons/:id').to({ controller: 'Dragons', action: 'create' })
@@ -65,7 +66,7 @@ describe 'Endpoint variants' do
             { controller: :dragons, action: :show }
           end
 
-          it { expect(result).to eql("dragons|show|#{id}") }
+          it { expect(body).to eql("dragons|show|#{id}") }
         end
 
         # put('/dragons/:id').to({ controller: Dragons, action: 'create' })
@@ -74,7 +75,7 @@ describe 'Endpoint variants' do
             { controller: Dragons, action: 'show' }
           end
 
-          it { expect(result).to eql("dragons|show|#{id}") }
+          it { expect(body).to eql("dragons|show|#{id}") }
         end
 
         # put('/dragons/:id').to({ controller: 'Dragon::Types', action: 'Create' })
@@ -83,7 +84,7 @@ describe 'Endpoint variants' do
             { controller: 'Dragons::Types', action: 'Create' }
           end
 
-          it { expect(result).to eql("dragon-type|create|#{id}") }
+          it { expect(body).to eql("dragon-type|create|#{id}") }
         end
 
         # put('/dragons/:id').to({ controller: 'Dragon::Types::Create' })
@@ -92,7 +93,7 @@ describe 'Endpoint variants' do
             { controller: 'Dragons::Types::Create' }
           end
 
-          it { expect(result).to eql("dragon-type|create|#{id}") }
+          it { expect(body).to eql("dragon-type|create|#{id}") }
         end
       end
 
@@ -102,12 +103,12 @@ describe 'Endpoint variants' do
         let(:pattern) { '/dragons/types/:id' }
         let(:path)    { "/dragons/types/#{id}" }
 
-        it { expect(result).to eql("dragon-type|create|#{id}") }
+        it { expect(body).to eql("dragon-type|create|#{id}") }
       end
 
       describe 'block' do
         let(:spec) do
-          ->(env) { env['router.params']['id'] }
+          ->(env) { [200, {}, [env['router.params']['id']]] }
         end
         let(:pattern) { '/dragons/:id' }
 
@@ -115,7 +116,7 @@ describe 'Endpoint variants' do
         context 'when lambda' do
           let(:path) { "/dragons/#{id}" }
 
-          it { expect(result).to eql(id.to_s) }
+          it { expect(body).to eql(id.to_s) }
         end
 
         # put('/dragons/:id').to do |env|
@@ -124,12 +125,12 @@ describe 'Endpoint variants' do
         context 'when in #to' do
           before(:each) do
             builder.send(method, '/users/:id').to do |env|
-              env['router.params']['id']
+              [200, {}, [env['router.params']['id']]]
             end
           end
           let(:path) { "/users/#{id}" }
 
-          it { expect(result).to eql(id.to_s) }
+          it { expect(body).to eql(id.to_s) }
         end
 
         # put('/users/:id') do |env|
@@ -138,12 +139,12 @@ describe 'Endpoint variants' do
         context 'when without #to' do
           before(:each) do
             builder.send(method, '/users/:id') do |env|
-              env['router.params']['id']
+              [200, {}, [env['router.params']['id']]]
             end
           end
           let(:path) { "/users/#{id}" }
 
-          it { expect(result).to eql(id.to_s) }
+          it { expect(body).to eql(id.to_s) }
         end
 
         # get('/users/:name') do
@@ -176,7 +177,7 @@ describe 'Endpoint variants' do
           end
           let(:path) { "/dragons/show/#{id}" }
 
-          it { expect(result).to eql("dragons|show|#{id}") }
+          it { expect(body).to eql("dragons|show|#{id}") }
         end
 
         # put('/:controller/:id').to({ action: 'show' })
@@ -187,7 +188,7 @@ describe 'Endpoint variants' do
           end
           let(:path) { "/dragons/#{id}" }
 
-          it { expect(result).to eql("dragons|show|#{id}") }
+          it { expect(body).to eql("dragons|show|#{id}") }
         end
 
         # put('/:controller/:action/:id')
@@ -196,7 +197,7 @@ describe 'Endpoint variants' do
           let(:spec) { {} }
           let(:path) { "/dragons/show/#{id}" }
 
-          it { expect(result).to eql("dragons|show|#{id}") }
+          it { expect(body).to eql("dragons|show|#{id}") }
         end
       end
     end

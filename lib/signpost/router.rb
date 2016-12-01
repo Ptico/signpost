@@ -23,10 +23,9 @@ class Signpost
             end
 
             env[params_key] = params
-
             result = route.endpoint.call(env)
 
-            if result[1]['X-Cascade'] == 'pass'
+            if result[1] && result[1]['X-Cascade'] == 'pass'
               next
             else
               return result

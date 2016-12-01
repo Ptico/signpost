@@ -29,6 +29,15 @@ class Signpost
       Result.new(endpoint, params)
     end
 
+    ##
+    # Get controller and action spec as hash for dynamic resolver
+    #
+    def preresolve
+      params = get_controller_and_action
+
+      { controller: params[0], action: params[1] }
+    end
+
   private
 
     ##
@@ -65,6 +74,9 @@ class Signpost
     end
 
     def get_params(cnt_name, act_name)
+      cnt_name = cnt_name.to_s if cnt_name.kind_of?(Symbol)
+      act_name = act_name.to_s if act_name.kind_of?(Symbol)
+
       controller = cnt_name.kind_of?(String) ? get_controller(cnt_name) : cnt_name
 
       action = act_name.kind_of?(String) ? get_action(controller || @namespace || Object, act_name) : act_name

@@ -34,7 +34,8 @@ class Signpost
         # - name {String|Symbol} route name
         #
         def as(name, postfix=nil)
-          @name = (postfix ? [name, @namespace, postfix] : [@namespace, name]).flatten.compact.join('_')
+          namespace_name = @namespace ? Inflecto.underscore(@namespace.to_s.tr('::', '')) : nil
+          @name = (postfix ? [name, namespace_name, postfix] : [namespace_name, name]).flatten.compact.join('_')
           self
         end
 
@@ -72,16 +73,24 @@ class Signpost
 
       private
 
-        def build_stack(router)
+        def build_stack(router, matcher)
           if @block && @block.arity == 0
             @to = Endpoint::Action.new(@block, router)
           end
 
-          resolved = Endpoint::Resolver.new(@to || @block, @options).resolve
+          matches = matcher.names
+          resolver = Resolver.new(@to || @block, @options[:namespace], @options[:controller_format])
 
-          @endpoint_params = resolved.params
+          if matches.include?('controller') || matches.include?('action')
+            @endpoint_params = resolver.preresolve # TODO - Should be updated after resolving
+            endpoint = Endpoint::Dynamic.new(@options, @endpoint_params)
+          else
+            resolved = resolver.resolve
+            endpoint = resolved.endpoint
+            @endpoint_params = resolved.params
+          end
 
-          Endpoint::Builder.new(resolved.endpoint, @options[:middlewares] || []).build
+          Endpoint::Builder.new(endpoint, @options[:middlewares] || []).build
         end
 
         def build_params

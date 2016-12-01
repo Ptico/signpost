@@ -38,7 +38,10 @@ class Signpost
       end
 
       def expose(router, routing_table, named_routes)
-        route = Route::Simple.new(get_matcher, build_stack(router), build_params, @constraints, @name)
+        matcher = get_matcher
+        stack = build_stack(router, matcher)
+
+        route = Route::Simple.new(matcher, stack, build_params, @constraints, @name)
         named_routes[route.name.to_sym] = route if route.name
 
         http_methods.each do |method|

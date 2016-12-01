@@ -56,7 +56,7 @@ describe Signpost::Sign::Flat::GET do
           { controller: :users, action: :index }
         end
 
-        it { expect(route.params).to include('controller' => Users, 'action' => :index) }
+        it { expect(route.params).to include('controller' => Users, 'action' => 'index') }
       end
 
       context 'with constants' do
@@ -78,7 +78,7 @@ describe Signpost::Sign::Flat::GET do
 
     context 'when namespace given' do
       let(:options) do
-        { namespace: 'Admin' }
+        { namespace: Admin }
       end
       let(:spec) do
         { controller: 'Users', action: 'index' }
@@ -102,7 +102,7 @@ describe Signpost::Sign::Flat::GET do
       let(:options) do
         {
           controller_format: '%{name}Controller',
-          namespace: 'Admin'
+          namespace: Admin
         }
       end
       let(:spec) do

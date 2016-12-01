@@ -2,7 +2,8 @@ class ActionController
   def self.call(env)
     params = env['router.params']
 
-    new(params).send(params['action'])
+    body = new(params).send(params['action'])
+    [200, {}, [body]]
   end
 
   attr_reader :params

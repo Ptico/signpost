@@ -38,7 +38,7 @@ class Signpost
           @additional = @options[:default_redirect_additional_values] || :ignore
         end
 
-        def build_stack(router)
+        def build_stack(router, _matcher)
           to_opts = { additional_values: @additional }
           to = @to.is_a?(String) ? Mustermann::Expander.new(@to, to_opts) : @to
 
