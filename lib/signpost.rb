@@ -14,7 +14,6 @@ require 'signpost/router'
 require 'signpost/middleware'
 require 'signpost/resolver'
 
-require 'signpost/endpoint/builder'
 require 'signpost/endpoint/dynamic'
 require 'signpost/endpoint/redirect'
 require 'signpost/endpoint/action'

@@ -63,6 +63,10 @@ class Signpost
         @block = block
       end
 
+      def build_stack(_router, _matcher)
+        fail NotImplementedError
+      end
+
       ##
       # Private: Build Mustermann matcher from given pattern and options
       #
