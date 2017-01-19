@@ -34,7 +34,7 @@ class Signpost
 
       def initialize(to, router, status=303)
         @to     = to
-        @status = status.is_a?(Fixnum) ? status : CODES[status.to_sym]
+        @status = status.kind_of?(Integer) ? status : CODES[status.to_sym]
         @router = router
         @params_key = router.params_key
       end

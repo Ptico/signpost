@@ -34,8 +34,8 @@ class Signpost
         # - name {String|Symbol} route name
         #
         def as(name, postfix=nil)
-          namespace_name = @namespace ? Inflecto.underscore(@namespace.to_s.tr('::', '')) : nil
-          @name = (postfix ? [name, namespace_name, postfix] : [namespace_name, name]).flatten.compact.join('_')
+          namespace_name = @namespace ? Array(@namespace).compact.map { |n| n.to_s.downcase }.join('_') : nil
+          @name = (postfix ? [name, namespace_name, postfix] : [namespace_name, name]).compact.join('_')
           self
         end
 
@@ -79,11 +79,12 @@ class Signpost
           end
 
           matches = matcher.names
-          resolver = Resolver.new(@to || @block, @options[:namespace], @options[:controller_format])
+          namespace = resolve_namespace(@options[:namespace])
+          resolver = Resolver.new(@to || @block, namespace, @options[:controller_format])
 
           if matches.include?('controller') || matches.include?('action')
             @endpoint_params = resolver.preresolve # TODO - Should be updated after resolving
-            endpoint = Endpoint::Dynamic.new(@options, @endpoint_params)
+            endpoint = Endpoint::Dynamic.new(namespace, @options, @endpoint_params)
           else
             resolved = resolver.resolve
             endpoint = resolved.endpoint
@@ -95,6 +96,17 @@ class Signpost
 
         def build_params
           @endpoint_params.merge(@params)
+        end
+
+        def resolve_namespace(namespaces)
+          Array(namespaces).compact.inject(Object) do |constant, name|
+            name = Inflecto.camelize(name.to_s)
+            if constant.constants.include?(name.to_sym)
+              constant.const_get(name)
+            else
+              return nil
+            end
+          end
         end
       end
 
